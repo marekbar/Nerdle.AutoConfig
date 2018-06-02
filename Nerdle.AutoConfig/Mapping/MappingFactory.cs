@@ -17,7 +17,11 @@ namespace Nerdle.AutoConfig.Mapping
             var typeMapping = new TypeMapping();
 
             var elementList = sectionElement.Elements().ToList();
-            var attributeList = sectionElement.Attributes().ToList();
+
+            var attributeList = sectionElement.Attributes().Where(x => !x.IsNamespaceDeclaration && 
+                                                                       x.Name.LocalName != "xmlns" && 
+                                                                       x.Name.LocalName != "xsi" &&
+                                                                       x.Name.LocalName != "noNamespaceSchemaLocation").ToList();
 
             foreach (var property in type.PublicSetters().ToList())
             {
@@ -89,13 +93,13 @@ namespace Nerdle.AutoConfig.Mapping
 
         static XElement TakeElement(ICollection<XElement> elementList, string name)
         {
-            return TakeSingleMatching(elementList, attr => attr.Name == name,
+            return TakeSingleMatching(elementList, attr => attr.Name.LocalName == name,
               count => string.Format("Found {0} elements with name '{1}' but only expected to find one.", count, name));
         }
 
         static XAttribute TakeAttribute(ICollection<XAttribute> attributeList, string name)
         {
-            return TakeSingleMatching(attributeList, attr => attr.Name == name,
+            return TakeSingleMatching(attributeList, attr => attr.Name.LocalName == name,
                 count => string.Format("Found {0} attributes with name '{1}' but only expected to find one.", count, name));
         }
 
